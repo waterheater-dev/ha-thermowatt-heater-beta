@@ -1,0 +1,26 @@
+# --- Python Specific ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+
+# --- VSCode specifc ---
+.vscode
+.history
+
+# --- Home Assistant / Add-on Specific ---
+# Ignore any local testing secrets or keys
+secrets.yaml
+*.log
+local_test_data.json
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- Sensitive Environment Files ---
+.env
+.flaskenv
