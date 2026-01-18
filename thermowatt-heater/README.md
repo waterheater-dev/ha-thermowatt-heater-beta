@@ -24,3 +24,9 @@ This add-on allows you to integrate Thermowatt-based smart water heaters into Ho
 email: "your-email@example.com"
 password: "your-password"
 ```
+
+## Dashboard
+
+Once the add-on is running, a new entity will appear under your MQTT integration. We recommend using the Thermostat Card for the best experience.
+
+_Disclaimer: This project is not affiliated with or endorsed by Thermowatt or Ariston._
