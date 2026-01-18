@@ -13,7 +13,7 @@ This add-on allows you to integrate Thermowatt-based smart water heaters into Ho
 
 ## Installation
 
-1. Click the **Add Repository** button above, or manually add `https://github.com/waterheater-dev/ha-thermowatt-heater.git` to your Home Assistant Add-on Store.
+1. Click the **Add Repository** button above, or manually add `https://github.com/waterheater-dev/ha-thermowatt-heater` to your Home Assistant Add-on Store.
 2. Install the **Thermowatt Smart Boiler** add-on.
 3. Configure your Thermowatt account credentials in the **Configuration** tab.
 4. Start the add-on.
@@ -30,3 +30,11 @@ password: "your-password"
 Once the add-on is running, a new entity will appear under your MQTT integration. We recommend using the Thermostat Card for the best experience.
 
 _Disclaimer: This project is not affiliated with or endorsed by Thermowatt or Ariston._
+
+---
+
+### Support my work
+
+If this add-on saved you some frustration or made your home a bit smarter or helped someone avoid a cold shower, feel free to [buy me a beer on Ko-fi!](https://ko-fi.com/thermohacker)
+
+[![support](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/thermohacker)
