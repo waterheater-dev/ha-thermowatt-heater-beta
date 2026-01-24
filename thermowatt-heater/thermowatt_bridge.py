@@ -82,15 +82,15 @@ class MyThermowattBridge:
             "mode_state_topic": f"P/{sn}/STATUS",
             "mode_state_template": (
                 "{% set cmd = value_json.result.Cmd | default(0) | int %}"
-                "{% if cmd == 9 %}performance"
-                "{% elif cmd == 3 %}eco"
-                "{% elif cmd == 17 %}auto"
-                "{% elif cmd == 65 %}electric"
+                "{% if cmd == 9 %}Manual"
+                "{% elif cmd == 3 %}Eco"
+                "{% elif cmd == 17 %}Auto"
+                "{% elif cmd == 65 %}Holiday"
                 "{% elif cmd == 16 %}off"
-                "{% else %}off{% endif %}" 
+                "{% else %}Off{% endif %}" 
             ),
             "mode_command_topic": f"P/{sn}/CMD/MODE",
-            "modes": ["off", "eco", "performance", "auto", "electric"],
+            "modes": ["Off", "Eco", "Manual", "Auto", "Holiday"],
             "device": {"identifiers": [f"tw_{sn}"], "manufacturer": "Thermowatt", "name": self.config['name']}
         }
         self.mqtt_client.publish(topic, json.dumps(payload), retain=True)
@@ -115,27 +115,27 @@ class MyThermowattBridge:
             
             elif f"P/{sn}/CMD/MODE" in msg.topic:
                 print(f"[CMD] Setting Mode to {payload}...")
-                if payload == "performance":
+                if payload == "Manual":
                     self.request("POST", "/manual", json={"T_SetPoint": current_fav})
                     self._inject_fake_status({"Cmd": "9", "T_SetPoint": str(current_fav)})
-                elif payload == "eco":
+                elif payload == "Eco":
                     self.request("POST", "/eco", headers={"Content-Type": "text/plain"}, data="")
                     self._inject_fake_status({"Cmd": "3"})
-                elif payload == "auto":
+                elif payload == "Auto":
                     self.request("POST", "/auto", headers={"Content-Type": "text/plain"}, data="")
                     self._inject_fake_status({"Cmd": "17"})
-                elif payload == "electric":
+                elif payload == "Holiday":
                     import datetime
                     # 1. Calculate future date (1 month)
                     future_date = (datetime.datetime.now() + datetime.timedelta(days=30)).strftime("%Y-%m-%d")
                     print(f"[CMD] Setting Holiday Mode until {future_date}...")
                     # 2. Issue the API command
                     resp = self.request("POST", "/holiday", json={"end_date": future_date})
-                    # 3. SET AN EXTENDED LOCKOUT (60 seconds for Holiday mode)
-                    self.last_command_time = time.time() + 45 # Adds a 45s "buffer" to the standard 15s
+                    # 3. SET AN EXTENDED LOCKOUT (90 seconds for Holiday mode)
+                    self.last_command_time = time.time() + 30 # Adds a 30s "buffer" to the standard 60s
                     # 4. Immediate state injection so HA doesn't flicker
                     self._inject_fake_status({"Cmd": "65"})
-                elif payload == "off":
+                elif payload == "Off":
                     print("[CMD] Turning Boiler OFF...")
                     resp = self.request("POST", "/off", headers={"Content-Type": "text/plain"}, data="")
                     self._inject_fake_status({"Cmd": "16"})
@@ -158,7 +158,7 @@ class MyThermowattBridge:
     def poll_and_publish(self):
         # If we sent a command in the last 10 seconds, skip polling
         # to let the backend cloud catch up.
-        if hasattr(self, 'last_command_time') and (time.time() - self.last_command_time < 15):
+        if hasattr(self, 'last_command_time') and (time.time() - self.last_command_time < 60):
             return 
 
         try:
@@ -222,10 +222,10 @@ class MyThermowattBridge:
         self.mqtt_client.subscribe(f"P/{self.config['serial']}/CMD/#")
         self.mqtt_client.loop_start()
         
-        print("OK: Step 8 - Beginning 15s polling loop.")
+        print("OK: Step 8 - Beginning 60s polling loop.")
         while True:
             self.poll_and_publish()
-            time.sleep(15)
+            time.sleep(60)
 
 if __name__ == "__main__":
     bridge = MyThermowattBridge()
