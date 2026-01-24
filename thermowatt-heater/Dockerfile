@@ -11,10 +11,6 @@ ENV PYTHONUNBUFFERED=1
 # Copy data for add-on
 COPY run.sh /
 COPY thermowatt_bridge.py /
-# We will copy your certs here too
-COPY root.pem /
-COPY client.crt /
-COPY client.key /
 
 RUN chmod a+x /run.sh
 

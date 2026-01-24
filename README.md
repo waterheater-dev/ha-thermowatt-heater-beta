@@ -13,10 +13,11 @@ This add-on allows you to integrate Thermowatt-based smart water heaters into Ho
 
 ## Installation
 
-1. Click the **Add Repository** button above, or manually add `https://github.com/waterheater-dev/ha-thermowatt-heater` to your Home Assistant Add-on Store.
-2. Install the **Thermowatt Smart Boiler** add-on.
-3. Configure your Thermowatt account credentials in the **Configuration** tab.
-4. Start the add-on.
+1. Prerequisite: Install and start Mosquitto MQTT broker within Home Assistant.
+2. Click the **Add Repository** button above, or manually add `https://github.com/waterheater-dev/ha-thermowatt-heater` to your Home Assistant Add-on Store.
+3. Install the **Thermowatt Smart Boiler** add-on.
+4. Configure your Thermowatt account credentials in the **Configuration** tab.
+5. Start the add-on.
 
 ## Configuration
 
@@ -28,6 +29,46 @@ password: "your-password"
 ## Dashboard
 
 Once the add-on is running, a new entity will appear under your MQTT integration. We recommend using the Thermostat Card for the best experience.
+
+## Troubleshooting
+
+The add-on will log each step of its boot cycle, so that in case of a problem, you will be aware of exactly which step failed. A healthy log should look like this:
+
+```code
+s6-rc: info: service s6rc-oneshot-runner: starting
+s6-rc: info: service s6rc-oneshot-runner successfully started
+s6-rc: info: service fix-attrs: starting
+s6-rc: info: service fix-attrs successfully started
+s6-rc: info: service legacy-cont-init: starting
+s6-rc: info: service legacy-cont-init successfully started
+s6-rc: info: service legacy-services: starting
+s6-rc: info: service legacy-services successfully started
+[12:20:09] INFO: Starting Thermowatt Bridge for <email@example.com>...
+--- BOOT SEQUENCE START ---
+OK: Step 1 - Credentials present.
+OK: Step 2 & 3 - Connected and authenticated with local MQTT.
+OK: Step 4 - Logged in to Thermowatt backend.
+OK: Step 5 - Found 1 thermostats. Using: Home
+OK: Step 6 - Successfully fetched initial status.
+OK: Step 7 - Booted successfully.
+OK: Step 8 - Beginning 15s polling loop.
+```
+
+## Known to work on:
+
+Home Assistant:
+Installation method: Home Assistant OS
+Core: 2025.12.5
+Supervisor: 2026.01.1
+Operating System: 16.3
+Frontend: 20251203.3
+
+Mosquitto MQTT Version: 6.5.2
+MyThermowatt App Version: 3.14
+
+Tip: Help others by adding your version here, if it works.
+
+---
 
 _Disclaimer: This project is not affiliated with or endorsed by Thermowatt or Ariston._
 
