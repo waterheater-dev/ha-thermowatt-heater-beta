@@ -35,6 +35,7 @@ class MyThermowattBridge:
         self.mqtt_client = mqtt.Client(CallbackAPIVersion.VERSION2)
         if MQTT_USER: self.mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
         self.aws_clients = {}  # Registry for AWS MQTT clients per device
+        self.last_command_time = {}  # Track last command time per device (serial -> timestamp)
 
     def _load_config(self):
         if os.path.exists(CONFIG_FILE):
@@ -81,6 +82,21 @@ class MyThermowattBridge:
     def on_aws_message(self, client, userdata, msg):
         """AWS -> Local (Status Updates)"""
         try:
+            # Extract serial from topic: P/SERIAL/STATUS
+            parts = msg.topic.split('/')
+            if len(parts) < 2:
+                return
+            sn = parts[1]
+            
+            # Ignore AWS status updates for X seconds after sending a command
+            # to prevent stale values from overwriting optimistic updates
+            COMMAND_COOLDOWN = 15  # seconds
+            if sn in self.last_command_time:
+                time_since_command = time.time() - self.last_command_time[sn]
+                if time_since_command < COMMAND_COOLDOWN:
+                    print(f"⏭️  Ignoring AWS update for {sn} (command sent {time_since_command:.1f}s ago)")
+                    return
+            
             print(f"📡 AWS Status Update [{msg.topic}]")
             # Forward AWS status directly to local HA MQTT
             self.mqtt_client.publish(msg.topic, msg.payload, retain=True)
@@ -146,11 +162,16 @@ class MyThermowattBridge:
                 self.request("POST", "/manual", json={"T_SetPoint": temp})
                 device_config["last_setpoint"] = temp
                 self.config['devices'][sn] = device_config
+                # Record command time to ignore AWS updates for a short period
+                self.last_command_time[sn] = time.time()
                 # Force HA to show this temperature immediately
                 self._inject_fake_status(sn, {"T_SetPoint": str(temp)})
             
             elif f"P/{sn}/CMD/MODE" in msg.topic:
                 print(f"[CMD] Setting Mode to {payload} for {sn}...")
+                # Record command time to ignore AWS updates for a short period
+                self.last_command_time[sn] = time.time()
+                
                 if payload == "Manual":
                     self.request("POST", "/manual", json={"T_SetPoint": current_fav})
                     self._inject_fake_status(sn, {"Cmd": "9", "T_SetPoint": str(current_fav)})
