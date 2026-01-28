@@ -36,7 +36,7 @@ jobs:
             echo "BETA_REPO_TOKEN missing (secret not available to this run)"
             exit 1
           fi
-         token_login="$(
+          token_login=$(
             curl -sS \
               -H "Authorization: Bearer ${BETA_REPO_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
