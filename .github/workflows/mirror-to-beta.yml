@@ -36,6 +36,9 @@ jobs:
             echo "BETA_REPO_TOKEN missing (secret not available to this run)"
             exit 1
           fi
+          echo "token_type=$(curl -sS -H "Authorization: Bearer ${BETA_REPO_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/user | jq -r '.login'
           git remote add beta "https://x-access-token:${BETA_REPO_TOKEN}@github.com/${BETA_REPO}.git"
           echo "token_length=${#BETA_REPO_TOKEN}"
           git remote -v
