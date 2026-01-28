@@ -43,6 +43,7 @@ jobs:
               https://api.github.com/user | jq -r '.login'
           )"
           echo "token_login=${token_login}"
+          git config --unset-all http.https://github.com/.extraheader || true
           git remote add beta "https://x-access-token:${BETA_REPO_TOKEN}@github.com/${BETA_REPO}.git"
           echo "token_length=${#BETA_REPO_TOKEN}"
           git remote -v
