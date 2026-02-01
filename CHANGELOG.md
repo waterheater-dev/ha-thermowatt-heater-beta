@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2026-01-27
 
 ### Removed
-- AWS MQTT bridge for real-time status updates (replaces polling)
-- Support for multiple devices with per-device AWS MQTT clients
+
+- AWS MQTT bridge for real-time status updates
 - Certificate-based AWS IoT authentication
 
 ### Added
